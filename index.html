@@ -27,6 +27,243 @@
 
 html { scroll-behavior: auto; overflow-x: hidden; }
 
+
+/* ══════════════════════════════════════
+   ENVELOPE INTRO OVERLAY
+══════════════════════════════════════ */
+#envelope-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: all;
+  overflow: hidden;
+}
+
+/* Paper texture noise via SVG filter */
+#envelope-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+.env-panel {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 50%;
+  will-change: transform;
+  transition: transform 0s; /* JS handles timing */
+}
+
+/* LEFT PANEL */
+#env-left {
+  left: 0;
+  background: linear-gradient(108deg, #fff0f5 0%, #ffe4ec 60%, #ffd6e7 100%);
+  transform-origin: left center;
+  box-shadow: inset -1px 0 0 rgba(232,117,138,0.15);
+}
+#env-left::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 60px; height: 100%;
+  background: linear-gradient(to right, transparent, rgba(232,117,138,0.06));
+  pointer-events: none;
+}
+
+/* RIGHT PANEL */
+#env-right {
+  right: 0;
+  background: linear-gradient(252deg, #fff0f5 0%, #ffe4ec 60%, #ffd6e7 100%);
+  transform-origin: right center;
+  box-shadow: inset 1px 0 0 rgba(232,117,138,0.15);
+}
+#env-right::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 60px; height: 100%;
+  background: linear-gradient(to left, transparent, rgba(232,117,138,0.06));
+  pointer-events: none;
+}
+
+/* Subtle fold lines on each panel */
+#env-left::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0; right: 24px;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent 10%, rgba(232,117,138,0.12) 30%, rgba(232,117,138,0.18) 50%, rgba(232,117,138,0.12) 70%, transparent 90%);
+}
+#env-right::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0; left: 24px;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent 10%, rgba(232,117,138,0.12) 30%, rgba(232,117,138,0.18) 50%, rgba(232,117,138,0.12) 70%, transparent 90%);
+}
+
+/* Decorative corner branch on left */
+.env-branch-left {
+  position: absolute;
+  bottom: 48px; left: 40px;
+  opacity: 0.18;
+  font-size: 80px;
+  transform: rotate(35deg) scaleX(-1);
+  user-select: none;
+  pointer-events: none;
+  filter: sepia(1) saturate(0.4);
+  line-height: 1;
+}
+.env-branch-right {
+  position: absolute;
+  top: 48px; right: 40px;
+  opacity: 0.14;
+  font-size: 64px;
+  transform: rotate(-20deg);
+  user-select: none;
+  pointer-events: none;
+  filter: sepia(1) saturate(0.4);
+  line-height: 1;
+}
+
+/* Small postmark on right panel */
+.env-postmark {
+  position: absolute;
+  bottom: 56px; right: 48px;
+  width: 72px; height: 72px;
+  border: 1.5px solid rgba(232,117,138,0.25);
+  border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 2px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+.env-postmark span {
+  font-family: 'Lato', sans-serif;
+  font-size: 8px; letter-spacing: .15em;
+  text-transform: uppercase;
+  color: #e8758a;
+  font-weight: 400;
+}
+.env-postmark .pm-year { font-size: 13px; font-weight: 400; letter-spacing: .05em; }
+
+/* Lining detail (left panel top) */
+.env-lining {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(232,117,138,0.25) 0px,
+    rgba(232,117,138,0.25) 12px,
+    rgba(244,160,184,0.15) 12px,
+    rgba(244,160,184,0.15) 24px
+  );
+}
+
+/* ── CENTER SEAL ── */
+#env-seal {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  z-index: 10;
+  cursor: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.seal-ring {
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #fff0f5, #ffd6e7);
+  border: 1.5px solid rgba(232,117,138,0.45);
+  box-shadow:
+    0 0 0 6px rgba(255,228,236,0.95),
+    0 0 0 7.5px rgba(232,117,138,0.18),
+    0 12px 40px rgba(232,117,138,0.2),
+    0 4px 12px rgba(232,117,138,0.12),
+    inset 0 1px 3px rgba(255,255,255,0.9),
+    inset 0 -1px 2px rgba(232,117,138,0.08);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 4px;
+  animation: sealPulse 2.8s ease-in-out infinite;
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.seal-ring:active { transform: scale(0.94); }
+
+/* Stamp-style inner ring */
+.seal-ring::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 0.75px dashed rgba(232,117,138,0.3);
+}
+
+/* Highlight */
+.seal-ring::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 35% 30%, rgba(255,255,255,0.6) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.seal-icon { font-size: 36px; position: relative; z-index: 1; filter: drop-shadow(0 2px 6px rgba(232,117,138,0.35)); }
+
+@keyframes sealPulse {
+  0%, 100% { box-shadow: 0 0 0 6px rgba(255,228,236,0.95), 0 0 0 7.5px rgba(232,117,138,0.18), 0 12px 40px rgba(232,117,138,0.2), 0 4px 12px rgba(232,117,138,0.12), inset 0 1px 3px rgba(255,255,255,0.9); transform: scale(1); }
+  50% { box-shadow: 0 0 0 10px rgba(255,228,236,0.8), 0 0 0 12px rgba(232,117,138,0.1), 0 16px 52px rgba(232,117,138,0.28), 0 4px 12px rgba(232,117,138,0.12), inset 0 1px 3px rgba(255,255,255,0.9); transform: scale(1.04); }
+}
+
+/* hint text below seal */
+.seal-hint {
+  position: absolute;
+  top: calc(100% + 18px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: 'Lato', sans-serif;
+  font-size: 10px; letter-spacing: .28em; text-transform: uppercase;
+  color: rgba(232,117,138,0.55);
+  animation: hintFade 3s ease-in-out infinite;
+}
+@keyframes hintFade { 0%,100%{opacity:.55} 50%{opacity:1} }
+
+/* Center seam line (where panels meet) */
+#env-seam {
+  position: absolute;
+  top: 0; bottom: 0; left: 50%;
+  width: 1px;
+  background: linear-gradient(to bottom,
+    transparent 5%,
+    rgba(232,117,138,0.2) 15%,
+    rgba(232,117,138,0.3) 30%,
+    rgba(232,117,138,0.25) 50%,
+    rgba(232,117,138,0.3) 70%,
+    rgba(232,117,138,0.2) 85%,
+    transparent 95%
+  );
+  transform: translateX(-50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* The actual overlay fade wrapper */
+#envelope-overlay.opening #env-seal { pointer-events: none; }
+#envelope-overlay.done { pointer-events: none; opacity: 0; transition: opacity 0.55s ease 0.15s; }
+
+/* ══════ end envelope ══════ */
+
+
+
+
 body {
   background: var(--pink-light);
   color: var(--text-dark);
@@ -52,6 +289,12 @@ body {
   backdrop-filter: blur(2px);
 }
 #cursor.hovering { width: 52px; height: 52px; background: rgba(244,160,184,0.4); }
+@media (hover: none) and (pointer: coarse) {
+  #cursor {
+    display: none;
+  }
+}
+
 
 /* ── Cherry Blossom Canvas ── */
 #petalCanvas {
@@ -574,6 +817,32 @@ body {
 </head>
 <body>
 
+
+<!-- ════════════════════════════════
+     ENVELOPE INTRO OVERLAY
+════════════════════════════════ -->
+<div id="envelope-overlay" role="button" aria-label="Open letter" tabindex="0">
+  <div id="env-left" class="env-panel">
+    <div class="env-lining"></div>
+    <span class="env-branch-left">🌿</span>
+  </div>
+  <div id="env-right" class="env-panel">
+    <span class="env-branch-right">🌸</span>
+    <div class="env-postmark">
+      <span>With</span>
+      <span class="pm-year">Love</span>
+      <span>Always</span>
+    </div>
+  </div>
+  <div id="env-seam"></div>
+  <div id="env-seal">
+    <div class="seal-ring">
+      <span class="seal-icon">💖</span>
+    </div>
+    <span class="seal-hint">Tap to open</span>
+  </div>
+</div>
+
 <!-- Custom Cursor -->
 <div id="cursor">💖</div>
 
@@ -720,9 +989,80 @@ body {
 gsap.registerPlugin(ScrollTrigger);
 
 /* ═══════════════════════════════
+   ENVELOPE INTRO
+═══════════════════════════════ */
+(function() {
+  const overlay  = document.getElementById('envelope-overlay');
+  const left     = document.getElementById('env-left');
+  const right    = document.getElementById('env-right');
+  const seam     = document.getElementById('env-seam');
+  const seal     = document.getElementById('env-seal');
+  const sealRing = seal.querySelector('.seal-ring');
+  const hint     = seal.querySelector('.seal-hint');
+
+  let opened = false;
+
+  function openEnvelope() {
+    if (opened) return;
+    opened = true;
+    overlay.classList.add('opening');
+
+    // Seal press feedback
+    gsap.to(sealRing, { scale: 0.88, duration: 0.12, ease: 'power2.in', onComplete: () => {
+      gsap.to(sealRing, { scale: 1, duration: 0.18, ease: 'power2.out' });
+    }});
+
+    // Fade hint
+    gsap.to(hint, { opacity: 0, duration: 0.2 });
+
+    // After micro-pause, slide panels
+    gsap.delayedCall(0.22, () => {
+      // Fade seam
+      gsap.to(seam, { opacity: 0, duration: 0.3 });
+      gsap.to(seal, { opacity: 0, duration: 0.35, ease: 'power2.in' });
+
+      // Slide panels apart
+      gsap.to(left,  { x: '-100%', duration: 0.82, ease: 'power2.inOut' });
+      gsap.to(right, { x:  '100%', duration: 0.82, ease: 'power2.inOut',
+        onComplete: () => {
+          overlay.classList.add('done');
+          // Remove from DOM after fade
+          setTimeout(() => overlay.remove(), 750);
+        }
+      });
+    });
+  }
+
+  // Click / tap
+  overlay.addEventListener('click', openEnvelope);
+  overlay.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openEnvelope(); });
+
+  // Auto-open after 3.5 s if no interaction
+  const autoTimer = setTimeout(openEnvelope, 3500);
+  overlay.addEventListener('click', () => clearTimeout(autoTimer), { once: true });
+
+  // Entrance: panels slide in from sides on load
+  gsap.set(left,  { x: '-100%' });
+  gsap.set(right, { x:  '100%' });
+  gsap.set(seal,  { opacity: 0, scale: 0.7 });
+
+  gsap.to(left,  { x: 0, duration: 0.9, ease: 'power3.out', delay: 0.1 });
+  gsap.to(right, { x: 0, duration: 0.9, ease: 'power3.out', delay: 0.1,
+    onComplete: () => {
+      gsap.to(seal, { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(1.6)' });
+    }
+  });
+})();
+
+
+
+
+/* ═══════════════════════════════
    CURSOR
 ═══════════════════════════════ */
-const cursor = document.getElementById('cursor');
+
+if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+  const cursor = document.getElementById('cursor');
 let mx = window.innerWidth/2, my = window.innerHeight/2;
 let cx = mx, cy = my;
 document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
@@ -740,6 +1080,8 @@ function updateCursor() {
 updateCursor();
 // Hide cursor on touch devices
 window.addEventListener('touchstart', () => { cursor.style.display = 'none'; }, {once:true});
+}
+
 
 /* ═══════════════════════════════
    CHERRY BLOSSOMS
