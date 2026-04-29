@@ -1174,51 +1174,60 @@ animatePetals();
 /* ═══════════════════════════════
    AUDIO
 ═══════════════════════════════ */
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let gainNode = audioCtx.createGain();
-gainNode.gain.value = 0;
-gainNode.connect(audioCtx.destination);
-let oscillator1 = audioCtx.createOscillator();
-let oscillator2 = audioCtx.createOscillator();
-let osc3 = audioCtx.createOscillator();
-
-oscillator1.type = 'sine'; oscillator1.frequency.value = 261.63; // C4
-oscillator2.type = 'sine'; oscillator2.frequency.value = 329.63; // E4
-osc3.type = 'sine'; osc3.frequency.value = 392.00; // G4
-
-let g1 = audioCtx.createGain(), g2 = audioCtx.createGain(), g3 = audioCtx.createGain();
-g1.gain.value = 0.15; g2.gain.value = 0.1; g3.gain.value = 0.08;
-
-oscillator1.connect(g1); g1.connect(gainNode);
-oscillator2.connect(g2); g2.connect(gainNode);
-osc3.connect(g3); g3.connect(gainNode);
-
-oscillator1.start(); oscillator2.start(); osc3.start();
+const audio = new Audio('./song.mp3'); // your file path
+audio.loop = true;
+audio.volume = 0; // start from 0 for fade-in
 
 let audioPlaying = false;
+let started = false;
+
 const audioBtn = document.getElementById('audioBtn');
 
+function fadeInAudio() {
+  audio.play().catch(() => {});
+  
+  let vol = 0;
+  const target = 0.4; // final volume
+  const step = 0.02;
+
+  const fade = setInterval(() => {
+    if (vol < target) {
+      vol += step;
+      audio.volume = vol;
+    } else {
+      audio.volume = target;
+      clearInterval(fade);
+    }
+  }, 100);
+}
+
 function toggleAudio() {
-  if (audioCtx.state === 'suspended') audioCtx.resume();
   if (!audioPlaying) {
-    gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 1.5);
+    audio.play().catch(() => {});
+    audio.volume = 0.4;
     audioBtn.textContent = '🔊';
     audioPlaying = true;
   } else {
-    gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+    audio.pause();
     audioBtn.textContent = '🔇';
     audioPlaying = false;
   }
 }
+
 audioBtn.addEventListener('click', toggleAudio);
 
-// Auto-play on first scroll
-let audioStarted = false;
-window.addEventListener('scroll', () => {
-  if (!audioStarted) { audioStarted = true; toggleAudio(); }
-}, {once:true});
+// Auto start after first interaction
+function startAudioOnce() {
+  if (!started) {
+    fadeInAudio();
+    audioBtn.textContent = '🔊';
+    audioPlaying = true;
+    started = true;
+  }
+}
+
+window.addEventListener('scroll', startAudioOnce, { once: true });
+window.addEventListener('click', startAudioOnce, { once: true });
 
 /* ═══════════════════════════════
    HERO ANIMATION
